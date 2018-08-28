@@ -5,7 +5,7 @@ import tarfile
 import os
 from datetime import datetime
 
-def zip(zipname, pathname, filterfunc=None, password=None):
+def zip(zipname, pathname, path_prefix=None, filterfunc=None, password=None):
     with zipfile.ZipFile(zipname, 'w')  as z:
         if password: z.setpassword(password)
 
@@ -18,6 +18,7 @@ def zip(zipname, pathname, filterfunc=None, password=None):
                     continue
 
                 fixp = p[len(pathname)+1: ]
+                if path_prefix: fixp = path_prefix + '/' + fixp
                 z.write(p, fixp)
 
 
@@ -39,7 +40,7 @@ def unzip(zipname, dest_dir, password=None):
     with zipfile.ZipFile(zipname, 'r')  as z:
         z.extractall(dest_dir, pwd=password)
 
-def tar_gz(tarname, pathname, filterfunc=None):
+def tar_gz(tarname, pathname, path_prefix=None, filterfunc=None):
 	with tarfile.open(tarname, 'w:gz') as t:
 		
 		for root, dirs, files in os.walk(pathname):
@@ -51,6 +52,7 @@ def tar_gz(tarname, pathname, filterfunc=None):
 					continue
 
 				fixp = p[len(pathname)+1: ]
+				if path_prefix: fixp = path_prefix + '/' + fixp
 				t.add(p, fixp)
 
 def print_tar(tarname):
