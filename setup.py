@@ -28,7 +28,8 @@ setup(
             'PyFunctional>=1.1.3',
             'hfilesize==0.1.0',
             'tqdm==4.25.0',
-            'jinja2==2.10'
+            'jinja2==2.10',
+            'click==6.7',
             ],
         extras_require={
             'dev':[
