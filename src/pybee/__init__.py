@@ -6,6 +6,7 @@ from pybee import shell
 from pybee import download 
 from pybee import sed 
 from pybee import awk 
+from pybee import git
 
 from datetime import datetime
 
