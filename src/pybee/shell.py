@@ -11,7 +11,13 @@ def exec(args, shell=False, check=True, cwd=None, **kwargs):
 	'''
 		直接调用命令
 	'''
-	subprocess.run(args,shell=shell, check=check, cwd=cwd, **kwargs)
+	if sys.version_info >=(3,5,0):
+		return subprocess.run(args,shell=shell, check=check, cwd=cwd, **kwargs)
+	else:
+		if check:
+			return suprocess.check_call(args, shell=shell, cwd=cwd, **kwargs)
+		else:
+			return suprocess.call(args, shell=shell, cwd=cwd,**kwargs)
 
 def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, **kwargs):
 	'''
