@@ -6,29 +6,38 @@ import contextlib
 import shutil
 
 def get_work_path():
-	'''
-		获取当前工作路径
-	'''
-	return os.path.abspath(os.getcwd())
+    '''
+            获取当前工作路径
+    '''
+    return os.path.abspath(os.getcwd())
 
 def get_script_path(script_path):
-	'''
-		获取脚本的路径
-		用法 get_script_path(__file__)
-	'''
-	return os.path.abspath(os.path.dirname(script_path))
+    '''
+            获取脚本的路径
+            用法 get_script_path(__file__)
+    '''
+    return os.path.abspath(os.path.dirname(script_path))
 
 def read_file_with_encoding(path, encoding='UTF-8'):
-	with io.open(path, 'r',encoding=encoding) as f:
-	    return f.read()
+    with io.open(path, 'r',encoding=encoding) as f:
+        return f.read()
 
 def read_lines_with_encoding(path, encoding='UTF-8'):
     with io.open(path, 'r', encoding=encoding) as f:
         return f.readlines()
 
 def write_file_with_encoding(path, text, encoding='UTF-8'):
-	with io.open(path, 'w',encoding=encoding) as f:
-		f.write(text)
+    with io.open(path, 'w',encoding=encoding) as f:
+            f.write(text)
+
+def read_first_line_from_file(path, encoding='UTF-8'):
+    with io.open(path, 'r',encoding=encoding) as f:
+        while True:
+            line = f.readline()
+            if not line: return None
+            line = line.strip()
+            if not line: continue
+            return line
 
 def mkdir(path, recursive=False, **kwargs):
     if recursive:
