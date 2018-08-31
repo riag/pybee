@@ -31,22 +31,28 @@ def write_file_with_encoding(path, text, encoding='UTF-8'):
 		f.write(text)
 
 def mkdir(path, recursive=False, **kwargs):
-	if recursive:
-		os.makedirs(path, exist_ok=True, **kwargs)
-	else:
-		if os.path.isdir(path): return
-		os.mkdir(path, **kwargs)
+    if recursive:
+        os.makedirs(path, exist_ok=True, **kwargs)
+    else:
+        if os.path.isdir(path): return
+        os.mkdir(path, **kwargs)
 
 # 这里只删除目录下的文件和目录
 # 不删除根目录
 def rmtree(path):
-	p_list = os.listdir(path)
-	for p in p_list:
-		m = os.path.join(path, p)
-		if os.path.isfile(m):
-			os.unlink(m)	
-		else:
-			shutil.rmtree(m)
+    p_list = os.listdir(path)
+    for p in p_list:
+        m = os.path.join(path, p)
+        if os.path.isfile(m):
+            os.unlink(m)	
+        else:
+            shutil.rmtree(m)
+
+def copyfiles(src_list, dest_dir):
+    if not os.path.isdir(dest_dir):
+        raise OSError('Not a directory: %s' % dest_dir)
+    for src in src_list:
+        shutil.copy(src, dest_dir)
 
 @contextlib.contextmanager
 def working_dir(path):
