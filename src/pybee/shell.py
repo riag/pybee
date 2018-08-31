@@ -37,7 +37,7 @@ def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, 
 		kwargs['shell'] = shell
 		kwargs['cwd'] = cwd
 		kwargs['stdout'] = PIPE
-		kwargs['sterr'] = PIPE
+		kwargs['stderr'] = PIPE
 		timeout = kwargs.get('timeout', None)
 		input = kwargs.get('input', None)
 		with subprocess.Popen(args, **kwargs) as p:
