@@ -12,7 +12,9 @@ def exec(args, shell=False, check=True, cwd=None, **kwargs):
 		直接调用命令
 	'''
 	if sys.version_info >=(3,5,0):
-		return subprocess.run(args,shell=shell, check=check, cwd=cwd, **kwargs)
+		return subprocess.run(
+                    args,shell=shell, check=check, cwd=cwd, **kwargs
+                    ).returncode
 	else:
 		if check:
 			return subprocess.check_call(args, shell=shell, cwd=cwd, **kwargs)
