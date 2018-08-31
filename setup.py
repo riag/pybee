@@ -23,9 +23,9 @@ setup(
         include_package_data=True,
         zip_safe=False,
         platforms='any',
-        python_requires='>=3.0',
+        python_requires='>=3.4',
         install_requires=[
-            'PyFunctional>=1.1.3',
+            'PyFunctional==1.1.3',
             'hfilesize==0.1.0',
             'tqdm==4.25.0',
             'jinja2==2.10',
