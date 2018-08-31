@@ -40,19 +40,19 @@ def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, 
 		input = kwargs.get('input', None)
 		with subprocess.Popen(args, **kwargs) as p:
 			try:
-				stdout, stderr = process.communicate(input, timeout=timeout)
+				stdout, stderr = p.communicate(input, timeout=timeout)
 				m = stdout
 			except subprocess.TimeoutExpired:
 				p.kill()	
-				stdout, stderr = process.communicate()
+				stdout, stderr = p.communicate()
 				raise subprocess.TimeoutExpired(p.args, timeout)
 			except:
 				p.kill()	
 				p.wait()
 				raise
 
-		retcode = process.poll()
+		retcode = p.poll()
 		if check and retcode:
-			raise subprocess.CalledProcessError(retcode, process.args)
+			raise subprocess.CalledProcessError(retcode, p.args)
 		
 	return m.decode(encoding).rstrip('\n')
