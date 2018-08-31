@@ -10,19 +10,41 @@ class DownloadFileException(Exception):
     pass
 
 def download(url, out_put_path, chunk_size=1024, user=None, password=None):
-    tmp_path = out_put_path + '.tmp'
+    '''
+        out_put_path 可以是一个目录
+        也可以是文件路径
+    '''
     u = urlopen(url)
     meta = u.info()
 
-    file_name = os.path.basename(out_put_path)
+    dest_file = out_put_path
+    if os.path.isdir(out_put_path):
+        name = meta.get_filename()
+        if name is None:
+            name = url.split('/') [-1]
+
+        dest_file = os.path.join(out_put_path, name)
+
+    tmp_path = dest_file + '.tmp'
+
+    file_name = os.path.basename(dest_file)
     
-    file_size = int(meta['Content-Length'])
-    human_file_size = '{:.03Hc}'.format(FileSize(file_size))
+    size_str = meta['Content-Length']
+    file_size = -1
+    if size_str:
+        file_size = int(size_str)
+
+    if file_size>0:
+        human_file_size = '{:.03Hc}'.format(FileSize(file_size))
     content_type = meta['Content-Type']
 
     print("url is %s" % u.geturl())
-    print("Length is %d (%s) [%s]" % (file_size, human_file_size, content_type))
-    print("Saveing to: %s" % out_put_path)
+    if file_size>0:
+        print("Length is %d (%s) [%s]" % (file_size, human_file_size, content_type))
+    else:
+        print("Length unspecified [%s]" % (content_type))
+
+    print("Saveing to: %s" % dest_file)
 
 
     download_size = 0
@@ -39,7 +61,8 @@ def download(url, out_put_path, chunk_size=1024, user=None, password=None):
 
         pbar.close()
 
-    if download_size != file_size:
+    if file_size>0 and download_size != file_size:
         raise DownloadFileException() 
 
-    os.rename(tmp_path, out_put_path)
+    os.rename(tmp_path, dest_file)
+    return dest_file
