@@ -28,6 +28,31 @@ def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, 
 	'''
 	kwargs.pop('stdout', None)
 	kwargs.pop('stderr', None)
-	m = subprocess.run(args,shell=shell, \
-		check=check, stdout=PIPE, stderr=PIPE, cwd=cwd, **kwargs).stdout
+	if sys.version_info >=(3,5,0):
+	    m = subprocess.run(
+		    args,shell=shell,
+		    check=check, stdout=PIPE, stderr=PIPE, 
+		    cwd=cwd, **kwargs).stdout
+	else:
+		kwargs['shell'] = shell
+		kwargs['cwd'] = cwd
+		timeout = kwargs.get('timeout', None)
+		input = kwargs.get('input', None)
+		with subprocess.Popen(args, **kwargs) as p:
+			try:
+				stdout, stderr = process.communicate(input, timeout=timeout)
+				m = stdout
+			except subprocess.TimeoutExpired:
+				p.kill()	
+				stdout, stderr = process.communicate()
+				raise subprocess.TimeoutExpired(p.args, timeout)
+			except:
+				p.kill()	
+				p.wait()
+				raise
+
+		retcode = process.poll()
+		if check and retcode:
+			raise subprocess.CalledProcessError(retcode, process.args)
+		
 	return m.decode(encoding).rstrip('\n')
