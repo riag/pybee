@@ -15,9 +15,9 @@ def exec(args, shell=False, check=True, cwd=None, **kwargs):
 		return subprocess.run(args,shell=shell, check=check, cwd=cwd, **kwargs)
 	else:
 		if check:
-			return suprocess.check_call(args, shell=shell, cwd=cwd, **kwargs)
+			return subprocess.check_call(args, shell=shell, cwd=cwd, **kwargs)
 		else:
-			return suprocess.call(args, shell=shell, cwd=cwd,**kwargs)
+			return subprocess.call(args, shell=shell, cwd=cwd,**kwargs)
 
 def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, **kwargs):
 	'''
