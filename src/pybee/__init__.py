@@ -7,6 +7,7 @@ from pybee import download
 from pybee import sed 
 from pybee import awk 
 from pybee import git
+from pybee import importutil
 
 from datetime import datetime
 
