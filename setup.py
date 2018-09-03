@@ -30,7 +30,6 @@ setup(
             'tqdm==4.25.0',
             'jinja2==2.10',
             'click==6.7',
-            'psutil==5.4.7',
             ],
         extras_require={
             'dev':[
