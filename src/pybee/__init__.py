@@ -9,6 +9,7 @@ from pybee import awk
 from pybee import git
 from pybee import pip
 from pybee import importutil
+from pybee import net
 
 from datetime import datetime
 
