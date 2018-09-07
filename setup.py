@@ -3,7 +3,7 @@
 import io
 import re
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with io.open('src/pybee/__init__.py', 'rt', encoding='utf8') as f:
     version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
@@ -19,7 +19,8 @@ setup(
         maintainer='riag',
         maintainer_email='riag@163.com',
         description='util function for write python script, instead of bash script',
-        packages=['src/pybee'],
+        package_dir={'': 'src'},
+        packages=find_packages(where='src'),
         include_package_data=True,
         zip_safe=False,
         platforms='any',
