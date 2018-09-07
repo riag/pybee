@@ -4,6 +4,7 @@ import os
 import io
 import contextlib
 import shutil
+from shutil import copy2
 
 def get_work_path():
     '''
