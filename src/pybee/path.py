@@ -4,7 +4,7 @@ import os
 import io
 import contextlib
 import shutil
-from shutil import copy2
+from shutil import copy2, copystat, Error
 
 def get_work_path():
     '''
