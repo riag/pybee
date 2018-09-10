@@ -10,6 +10,7 @@ from pybee import git
 from pybee import pip
 from pybee import importutil
 from pybee import net
+from pybee import springboot
 
 from datetime import datetime
 

@@ -28,7 +28,15 @@ def replace_by_pattern(fpath, replace_pattern_list, encoding='UTF-8', back_suffi
         shutil.copyfile(fpath, back_path)
 
     
-    compile_pattern_list = [ (re.compile(pattern), reple) for pattern, repl in replace_pattern_list ]
+    #compile_pattern_list = [ (re.compile(pattern), reple) for pattern, repl in replace_pattern_list ]
+    compile_pattern_list = []
+    for p, reple in replace_pattern_list:
+        pattern = p
+        if type(p) == str:
+            pattern = re.compile(p)
+
+        compile_pattern_list.append((pattern, reple))
+        
 
     lines = pybee.path.read_lines_with_encoding(fpath, encoding)
     change_lines=[]
