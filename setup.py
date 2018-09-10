@@ -33,11 +33,16 @@ setup(
             'click==6.7',
             'psutil==5.4.7',
             ],
+        setup_requires=[
+            'pytest-runner',
+        ],
+        tests_require=['pytest>=3'],
         extras_require={
             'dev':[
                 'pytest>=3',
-                ]
-            },
+                ],
+            'testing': [ 'pytest>=3' ],
+        },
         classifiers=[
             'License :: OSI Approved :: BSD License',
             'Programming Language :: Python :: 3',
