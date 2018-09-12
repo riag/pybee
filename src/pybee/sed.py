@@ -10,6 +10,17 @@ from functional import seq
 
 import pybee
 
+def get_compile_pattern_list(pattern_list):
+    compile_pattern_list = []
+    for p in pattern_list:
+        pattern = p
+        if type(p) == str:
+            pattern = re.compile(p)
+        compile_pattern_list.append(pattern)
+
+    return compile_pattern_list
+
+
 def replace_str_by_template(text, *mapping, **kwds):
     s = Template(text)
     return s.safe_substitute(*mapping, **kwds)
@@ -28,15 +39,7 @@ def replace_by_pattern(fpath, replace_pattern_list, encoding='UTF-8', back_suffi
         shutil.copyfile(fpath, back_path)
 
     
-    #compile_pattern_list = [ (re.compile(pattern), reple) for pattern, repl in replace_pattern_list ]
-    compile_pattern_list = []
-    for p, reple in replace_pattern_list:
-        pattern = p
-        if type(p) == str:
-            pattern = re.compile(p)
-
-        compile_pattern_list.append((pattern, reple))
-        
+    compile_pattern_list = get_compile_pattern_list(replace_pattern_list)
 
     lines = pybee.path.read_lines_with_encoding(fpath, encoding)
     change_lines=[]
@@ -87,18 +90,18 @@ def match_by_pattern_list(pattern_list, s):
 
     return True
 
-def delete_by_pattern(fpath, pattern_str_list, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
+def delete_by_pattern(fpath, pattern_list, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
     if back_suffix:
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)
 
-    pattern_list = [ re.compile(x) for x in pattern_str_list ]
+    compile_pattern_list = get_compile_pattern_list(pattern_list)
 
     lines = pybee.path.read_lines_with_encoding(fpath, encoding)
 
     file_seq = seq(lines)
     text = file_seq.filter(\
-            functools.partial(match_by_pattern_list(pattern_list))\
+            functools.partial(match_by_pattern_list(compile_pattern_list))\
             ).make_string(linesep)
 
     pybee.path.write_file_with_encoding(fpath, text, encoding)
@@ -134,7 +137,16 @@ def insert_text_by_pattern(fpath, pattern_text_list, encoding='UTF-8'):
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)
 
-    compile_pattern_text_list = [  (re.compile(x[0]), x[1], x[2]) for x in pattern_text_list ]
+    #compile_pattern_text_list = [  (re.compile(x[0]), x[1], x[2]) for x in pattern_text_list ]
+    compile_pattern_text_list = []
+    for p in pattern_text_list:
+        pattern = p[0]
+        if type(pattern) == str:
+            pattern = re.compile(pattern)
+
+        compile_pattern_text_list.append(
+                (pattern, p[1], p[2])
+                )
 
     lines = pybee.path.read_lines_with_encoding(fpath, encoding)
     change_lines=[]
@@ -157,3 +169,39 @@ def insert_text_by_pattern(fpath, pattern_text_list, encoding='UTF-8'):
             change_lines.append(line)
 
     pybee.path.write_file_with_encoding(fpath, ''.join(change_lines), encoding)
+
+def find_by_pattern(fpath, pattern, encoding='UTF-8'):
+
+    compile_pattern = re.compile(pattern) if type(pattern) == str else pattern
+
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
+
+    for line in lines:
+        p = compile_pattern.match(line)
+        if p: return p
+
+    return None
+
+
+def find_by_pattern_list(fpath, pattern_list, encoding='UTF-8'):
+
+    compile_pattern_list = get_compile_pattern_list(pattern_list)
+    result_list = [None] * len(compile_pattern_list)
+
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
+
+    num = 0
+    total = len(compile_pattern_list)
+    for line in lines:
+        for idx, pattern in enumerate(compile_pattern_list):
+            if pattern is None: continue
+            p = pattern.match(line)
+            if p: 
+                num += 1
+                result_list[idx] = p
+                compile_pattern_list[idx] = None
+                break
+
+        if num == total: break
+
+    return result_list

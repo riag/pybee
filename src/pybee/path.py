@@ -31,6 +31,10 @@ def read_lines_with_encoding(path, encoding='UTF-8'):
     with io.open(path, 'r', encoding=encoding) as f:
         return f.readlines()
 
+def read_lines_from_file(fpath, encoding='UTF-8'):
+    with io.open(fpath, 'r', encoding=encoding) as f:
+        return f.readlines()
+
 def write_file_with_encoding(path, text, encoding='UTF-8'):
     with io.open(path, 'w',encoding=encoding) as f:
             f.write(text)
