@@ -32,8 +32,15 @@ def replace_by_template(tmp_path, out_path, encoding='UTF-8', \
     s = replace_str_by_template(text, mapping, **kwds)
     pybee.path.write_file_with_encoding(out_pth, s, encoding)
 
+def replace_by_pattern(fpath, pattern, repl, encoding='UTF-8', back_suffix='back'):
 
-def replace_by_pattern(fpath, replace_pattern_list, encoding='UTF-8', back_suffix='back'):
+    return replace_by_pattern_list(
+            fpath, 
+            ((pattern, repl),),
+            encoding, back_suffix
+            )
+
+def replace_by_pattern_list(fpath, replace_pattern_list, encoding='UTF-8', back_suffix='back'):
     if back_suffix:
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)

@@ -71,7 +71,7 @@ def change_port(
                 (livereload_port_pattern, '\g<1> = %d' % livereload_port)
             )
 
-    pybee.sed.replace_by_pattern(
+    pybee.sed.replace_by_pattern_list(
             config_file,
             replace_pattern_list,
             back_suffix = back_suffix
