@@ -145,7 +145,14 @@ def insert_text_by_line_number(fpath, insert_text_list, encoding='UTF-8', back_s
 
     pybee.path.write_file_with_encoding(fpath, ''.join(change_lines), encoding)
 
-def insert_text_by_pattern(fpath, pattern_text_list, encoding='UTF-8'):
+def insert_text_by_pattern(fpath, pattern, insert_txt, 
+        after=True, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
+    insert_text_by_pattern_list(fpath,
+            ((pattern, insert_txt, after),),
+            encoding, back_suffix, linesep
+            )
+
+def insert_text_by_pattern_list(fpath, pattern_text_list, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
     if back_suffix:
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)
