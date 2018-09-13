@@ -4,6 +4,7 @@ from string import Template
 import os
 import re
 import shutil
+import functools
 
 import jinja2
 from functional import seq
@@ -84,7 +85,7 @@ def render_by_jinja_template(tmp_path, out_path, encoding='UTF-8', \
     s = render_str_by_jinja_template(text, mapping, **kwds)
     pybee.path.write_file_with_encoding(out_pth, s, encoding)
 
-def delete_by_line_number(fpath, line_numbers, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
+def delete_by_line_number(fpath, line_numbers, encoding='UTF-8', back_suffix='back'):
 
     if back_suffix:
         back_path=fpath + '.'+ back_suffix
@@ -93,17 +94,27 @@ def delete_by_line_number(fpath, line_numbers, encoding='UTF-8', back_suffix='ba
     lines = pybee.path.read_lines_with_encoding(fpath, encoding)
 
     file_seq = seq(lines)
-    text = file_seq.enumerate().filter(lambda x: x[0] not in line_numbers).make_string(linesep)
+    text = file_seq.enumerate().filter(lambda x: x[0] not in line_numbers).make_string('')
 
     pybee.path.write_file_with_encoding(fpath, text, encoding)
 
 def match_by_pattern_list(pattern_list, s):
     for pattern in pattern_list:
-        if not pattern.match(s): return False
+        if pattern.match(s): return True
 
-    return True
+    return False
 
-def delete_by_pattern(fpath, pattern_list, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
+def not_match_by_pattern_list(pattern_list, s):
+    return not match_by_pattern_list(pattern_list, s)
+
+def delete_by_pattern(fpath, pattern, encoding='UTF-8', back_suffix='back'):
+    return delete_by_pattern_list(
+            fpath, (pattern, ),
+            encoding, back_suffix 
+            )
+
+
+def delete_by_pattern_list(fpath, pattern_list, encoding='UTF-8', back_suffix='back'):
     if back_suffix:
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)
@@ -114,8 +125,8 @@ def delete_by_pattern(fpath, pattern_list, encoding='UTF-8', back_suffix='back',
 
     file_seq = seq(lines)
     text = file_seq.filter(\
-            functools.partial(match_by_pattern_list(compile_pattern_list))\
-            ).make_string(linesep)
+            functools.partial(not_match_by_pattern_list,compile_pattern_list)\
+            ).make_string('')
 
     pybee.path.write_file_with_encoding(fpath, text, encoding)
 
