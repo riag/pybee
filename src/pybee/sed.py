@@ -29,9 +29,9 @@ def replace_str_by_template(text, *mapping, **kwds):
 def replace_by_template(tmp_path, out_path, encoding='UTF-8', \
         mapping=None, **kwds):
 
-    text = pybee.path.read_file_with_encoding(tmp_path, encoding)
+    text = pybee.path.read_text_file(tmp_path, encoding)
     s = replace_str_by_template(text, mapping, **kwds)
-    pybee.path.write_file_with_encoding(out_pth, s, encoding)
+    pybee.path.save_text_file(out_pth, s, encoding)
 
 def replace_by_pattern(fpath, pattern, repl, encoding='UTF-8', back_suffix='back'):
 
@@ -55,7 +55,7 @@ def replace_by_pattern_list(fpath, replace_pattern_list, encoding='UTF-8', back_
 
         compile_pattern_list.append((pattern, repl))
 
-    lines = pybee.path.read_lines_with_encoding(fpath, encoding)
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
     change_lines=[]
     for idx, line in enumerate(lines):
         replace = False
@@ -71,7 +71,7 @@ def replace_by_pattern_list(fpath, replace_pattern_list, encoding='UTF-8', back_
         if replace: continue
         change_lines.append(line)
 
-    pybee.path.write_file_with_encoding(fpath, ''.join(change_lines), encoding)
+    pybee.path.save_text_file(fpath, ''.join(change_lines), encoding)
 
 
 def render_str_by_jinja_template(text, *mapping, **kwds):
@@ -81,9 +81,9 @@ def render_str_by_jinja_template(text, *mapping, **kwds):
 def render_by_jinja_template(tmp_path, out_path, encoding='UTF-8', \
         mapping=None, **kwds):
 
-    text = pybee.path.read_file_with_encoding(tmp_path, encoding)
+    text = pybee.path.read_text_file(tmp_path, encoding)
     s = render_str_by_jinja_template(text, mapping, **kwds)
-    pybee.path.write_file_with_encoding(out_pth, s, encoding)
+    pybee.path.save_text_file(out_pth, s, encoding)
 
 def delete_by_line_number(fpath, line_numbers, encoding='UTF-8', back_suffix='back'):
 
@@ -91,12 +91,12 @@ def delete_by_line_number(fpath, line_numbers, encoding='UTF-8', back_suffix='ba
         back_path=fpath + '.'+ back_suffix
         shutil.copyfile(fpath, back_path)
 
-    lines = pybee.path.read_lines_with_encoding(fpath, encoding)
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
 
     file_seq = seq(lines)
     text = file_seq.enumerate().filter(lambda x: x[0] not in line_numbers).make_string('')
 
-    pybee.path.write_file_with_encoding(fpath, text, encoding)
+    pybee.path.save_text_file(fpath, text, encoding)
 
 def match_by_pattern_list(pattern_list, s):
     for pattern in pattern_list:
@@ -121,14 +121,14 @@ def delete_by_pattern_list(fpath, pattern_list, encoding='UTF-8', back_suffix='b
 
     compile_pattern_list = get_compile_pattern_list(pattern_list)
 
-    lines = pybee.path.read_lines_with_encoding(fpath, encoding)
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
 
     file_seq = seq(lines)
     text = file_seq.filter(\
             functools.partial(not_match_by_pattern_list,compile_pattern_list)\
             ).make_string('')
 
-    pybee.path.write_file_with_encoding(fpath, text, encoding)
+    pybee.path.save_text_file(fpath, text, encoding)
 
 def insert_text_by_line_number(fpath, insert_text_list, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
     if back_suffix:
@@ -139,7 +139,7 @@ def insert_text_by_line_number(fpath, insert_text_list, encoding='UTF-8', back_s
     for idx, text, after in insert_text_list:
         insert_text_map[idx] = (text, after)
 
-    lines = pybee.path.read_lines_with_encoding(fpath, encoding)
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
     change_lines=[]
     for idx, line in enumerate(lines):
         if idx not in insert_text_map: 
@@ -154,7 +154,7 @@ def insert_text_by_line_number(fpath, insert_text_list, encoding='UTF-8', back_s
             change_lines.append(line)
             change_lines.append(m)
 
-    pybee.path.write_file_with_encoding(fpath, ''.join(change_lines), encoding)
+    pybee.path.save_text_file(fpath, ''.join(change_lines), encoding)
 
 def insert_text_by_pattern(fpath, pattern, insert_txt, 
         after=True, encoding='UTF-8', back_suffix='back', linesep=os.linesep):
@@ -179,7 +179,7 @@ def insert_text_by_pattern_list(fpath, pattern_text_list, encoding='UTF-8', back
                 (pattern, p[1], p[2])
                 )
 
-    lines = pybee.path.read_lines_with_encoding(fpath, encoding)
+    lines = pybee.path.read_lines_from_file(fpath, encoding)
     change_lines=[]
     for idx, line in enumerate(lines):
         match = False
@@ -199,7 +199,7 @@ def insert_text_by_pattern_list(fpath, pattern_text_list, encoding='UTF-8', back
 
             change_lines.append(line)
 
-    pybee.path.write_file_with_encoding(fpath, ''.join(change_lines), encoding)
+    pybee.path.save_text_file(fpath, ''.join(change_lines), encoding)
 
 def find_by_pattern(fpath, pattern, encoding='UTF-8'):
 
