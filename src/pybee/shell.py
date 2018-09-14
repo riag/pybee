@@ -25,6 +25,45 @@ def call(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, 
 	'''
 		调用命令行工具，获取 stdin 和 stderr 的输出
 		使用 encoding 编码解码，返回 string 数据
+        这个接口改为使用 get_output
+	'''
+	kwargs.pop('stdout', None)
+	kwargs.pop('stderr', None)
+	if sys.version_info >=(3,5,0):
+	    m = subprocess.run(
+		    args,shell=shell,
+		    check=check, stdout=PIPE, stderr=PIPE, 
+		    cwd=cwd, **kwargs).stdout
+	else:
+		kwargs['shell'] = shell
+		kwargs['cwd'] = cwd
+		kwargs['stdout'] = PIPE
+		kwargs['stderr'] = PIPE
+		timeout = kwargs.get('timeout', None)
+		input = kwargs.get('input', None)
+		with subprocess.Popen(args, **kwargs) as p:
+			try:
+				stdout, stderr = p.communicate(input, timeout=timeout)
+				m = stdout
+			except subprocess.TimeoutExpired:
+				p.kill()	
+				stdout, stderr = p.communicate()
+				raise subprocess.TimeoutExpired(p.args, timeout)
+			except:
+				p.kill()	
+				p.wait()
+				raise
+
+		retcode = p.poll()
+		if check and retcode:
+			raise subprocess.CalledProcessError(retcode, p.args)
+		
+	return m.decode(encoding).rstrip('\n')
+
+def get_output(args, shell=False, check=True, cwd=None, encoding=sys.stdout.encoding, **kwargs):
+	'''
+		调用命令行工具，获取 stdin 和 stderr 的输出
+		使用 encoding 编码解码，返回 string 数据
 	'''
 	kwargs.pop('stdout', None)
 	kwargs.pop('stderr', None)
