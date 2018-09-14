@@ -9,13 +9,15 @@ from pybee import awk
 from pybee import git
 from pybee import pip
 from pybee import importutil
-from pybee import net
+from pybee import netstat
 from pybee import springboot
 from pybee import iptables
 from pybee import network
 from pybee import firewalld
 
 from datetime import datetime
+
+net = netstat
 
 __version__ = '0.1.0.dev'
 
