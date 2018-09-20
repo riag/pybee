@@ -31,7 +31,7 @@ def replace_by_template(tmp_path, out_path, encoding='UTF-8', \
 
     text = pybee.path.read_text_file(tmp_path, encoding)
     s = replace_str_by_template(text, mapping, **kwds)
-    pybee.path.save_text_file(out_pth, s, encoding)
+    pybee.path.save_text_file(out_path, s, encoding)
 
 def replace_by_pattern(fpath, pattern, repl, encoding='UTF-8', back_suffix='back'):
 
