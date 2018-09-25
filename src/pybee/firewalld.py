@@ -10,8 +10,7 @@ import io
 
 import pybee
 
-service_file_tpl = '''
-<?xml version="1.0" encoding="utf-8"?>
+service_file_tpl = '''<?xml version="1.0" encoding="utf-8"?>
 <service>
   <short>$short_desc</short>
   <description>$desc</description>
@@ -40,7 +39,7 @@ def add_service_file(fpath, pro, port, short_desc, desc):
 
 def enable_service(svr_name, zone='public'):
     
-    cmd_list = ['firewall-cmd', '--permanent', '--zone=%' % zone]
+    cmd_list = ['firewall-cmd', '--permanent', '--zone=%s' % zone]
     cmd_list.append('--add-service=%s' % svr_name)
 
     pybee.shell.exec(cmd_list)
@@ -67,5 +66,5 @@ def remove_port(pro, port, zone='public'):
 
 def reload():
     pybee.shell.exec(
-            ['firewall-cmd', 'reload']
+            ['firewall-cmd', '--reload']
             )
