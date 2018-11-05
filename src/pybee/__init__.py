@@ -19,7 +19,7 @@ from datetime import datetime
 
 net = netstat
 
-__version__ = '0.1.0.dev'
+__version__ = '0.1.0'
 
 def get_date_time(dt, fmt='%Y-%m-%d %H:%M:%S'):
 	return dt.strftime(fmt)
