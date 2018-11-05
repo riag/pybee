@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
 import io
+import os
 import re
 
 from setuptools import setup, find_packages
 
+from requirementslib import Lockfile
+
 with io.open('src/pybee/__init__.py', 'rt', encoding='utf8') as f:
     version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
 
+lockfile = Lockfile.create(os.path.abspath(os.path.dirname(__file__)))
+install_requires = lockfile.as_requirements(dev=False)
 
 setup(
         name='pybee',
@@ -25,24 +30,10 @@ setup(
         zip_safe=False,
         platforms='any',
         python_requires='>=3.4',
-        install_requires=[
-            'PyFunctional==1.2.0',
-            'hfilesize==0.1.0',
-            'tqdm==4.28.1',
-            'jinja2==2.10',
-            'click==7.0',
-            'psutil==5.4.8',
-            ],
+        install_requires=install_requires,
         setup_requires=[
             'pytest-runner',
         ],
-        tests_require=['pytest>=3'],
-        extras_require={
-            'dev':[
-                'pytest>=3',
-                ],
-            'testing': [ 'pytest>=3' ],
-        },
         classifiers=[
             'License :: OSI Approved :: BSD License',
             'Programming Language :: Python :: 3',
