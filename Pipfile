@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+#url = "http://mirrors.aliyun.com/pypi/simple/"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+PyFunctional = "==1.2.0"
+hfilesize = '==0.1.0'
+tqdm = '==4.28.1'
+jinja2 = '==2.10'
+click = '==7.0'
+psutil = '==5.4.8'
+
+[dev-packages]
+pytest = "*"
+requirementslib = "==1.2.5"
+pipenv = "*"
+
+[pipenv]
+allow_prereleases = true
