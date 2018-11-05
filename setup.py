@@ -26,12 +26,12 @@ setup(
         platforms='any',
         python_requires='>=3.4',
         install_requires=[
-            'PyFunctional==1.1.3',
+            'PyFunctional==1.2.0',
             'hfilesize==0.1.0',
-            'tqdm==4.25.0',
+            'tqdm==4.28.1',
             'jinja2==2.10',
-            'click==6.7',
-            'psutil==5.4.7',
+            'click==7.0',
+            'psutil==5.4.8',
             ],
         setup_requires=[
             'pytest-runner',
