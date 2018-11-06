@@ -6,7 +6,7 @@ import re
 
 from setuptools import setup, find_packages
 
-from requirementslib import Lockfile
+from pipenv.vendor.requirementslib import Lockfile
 
 with io.open('src/pybee/__init__.py', 'rt', encoding='utf8') as f:
     version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
