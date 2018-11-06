@@ -16,6 +16,7 @@ psutil = '==5.4.8'
 pytest = "*"
 requirementslib = "==1.2.5"
 pipenv = "*"
+pybee = {editable = true, path = "."}
 
 [pipenv]
 allow_prereleases = true
