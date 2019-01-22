@@ -22,17 +22,17 @@ import io
 
 net = netstat
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 get_date_time = datetime.to_str
 
 
 def get_curr_date_time(fmt='%Y-%m-%d %H:%M:%S'):
-	d = datetime.now()
-	return get_date_time(d, fmt)
+    d = datetime.now()
+    return get_date_time(d, fmt)
 
 
 def source(filepath):
-	with io.open(filepath, 'r', encoding='utf-8') as f:
-		eval(f.read())
+    with io.open(filepath, 'r', encoding='utf-8') as f:
+        eval(f.read())
