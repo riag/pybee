@@ -7,7 +7,7 @@ import pybee
 def make_systemd_script(
         desc='', depend=[],
         start_cmd='', stop_cmd=None,
-        reload_cmd=None, 
+        reload_cmd=None,
         user=None, group=None,
         cwd=None,
         restart_sec='42s'
@@ -48,31 +48,35 @@ def make_systemd_script(
 
     return '\n'.join(text_list)
 
+
 sv_port_pattern = re.compile(r'\s*(server.port)\s*=\s*\d+')
 mgr_port_pattern = re.compile(r'\s*(management.server.port)\s*=\s*\d+')
-livereload_port_pattern = re.compile(r'\s*(spring.devtools.livereload.port)\s*=\s*\d+')
+livereload_port_pattern = re.compile(
+    r'\s*(spring.devtools.livereload.port)\s*=\s*\d+'
+    )
+
 
 def change_port(
         config_file,
-        sv_port=None, mgr_port=None, 
+        sv_port=None, mgr_port=None,
         livereload_port=None, back_suffix='back'):
 
     replace_pattern_list = []
     if sv_port:
         replace_pattern_list.append(
-            (sv_port_pattern, '\g<1> = %d' % sv_port)
+            (sv_port_pattern, r'\g<1> = %d' % sv_port)
             )
     if mgr_port:
         replace_pattern_list.append(
-            (mgr_port_pattern, '\g<1> = %d' % mgr_port)
+            (mgr_port_pattern, r'\g<1> = %d' % mgr_port)
             )
     if livereload_port:
         replace_pattern_list.append(
-                (livereload_port_pattern, '\g<1> = %d' % livereload_port)
+                (livereload_port_pattern, r'\g<1> = %d' % livereload_port)
             )
 
     pybee.sed.replace_by_pattern_list(
             config_file,
             replace_pattern_list,
-            back_suffix = back_suffix
+            back_suffix=back_suffix
             )

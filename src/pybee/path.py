@@ -6,11 +6,13 @@ import contextlib
 import shutil
 from shutil import copy2, copystat, Error
 
+
 def get_work_path():
     '''
             获取当前工作路径
     '''
     return os.path.abspath(os.getcwd())
+
 
 def get_script_path(script_path):
     '''
@@ -19,46 +21,57 @@ def get_script_path(script_path):
     '''
     return os.path.abspath(os.path.dirname(script_path))
 
+
 def read_file_with_encoding(path, encoding='UTF-8'):
-    with io.open(path, 'r',encoding=encoding) as f:
+    with io.open(path, 'r', encoding=encoding) as f:
         return f.read()
 
+
 def read_text_file(fpath, encoding='UTF-8'):
-    with io.open(fpath, 'r',encoding=encoding) as f:
+    with io.open(fpath, 'r', encoding=encoding) as f:
         return f.read()
+
 
 def read_lines_with_encoding(path, encoding='UTF-8'):
     with io.open(path, 'r', encoding=encoding) as f:
         return f.readlines()
 
+
 def read_lines_from_file(fpath, encoding='UTF-8'):
     with io.open(fpath, 'r', encoding=encoding) as f:
         return f.readlines()
 
+
 def write_file_with_encoding(path, text, encoding='UTF-8'):
-    with io.open(path, 'w',encoding=encoding) as f:
+    with io.open(path, 'w', encoding=encoding) as f:
             f.write(text)
 
+
 def save_text_file(fpath, text, encoding='UTF-8'):
-    with io.open(fpath, 'w',encoding=encoding) as f:
+    with io.open(fpath, 'w', encoding=encoding) as f:
             f.write(text)
 
 
 def read_first_line_from_file(path, encoding='UTF-8'):
-    with io.open(path, 'r',encoding=encoding) as f:
+    with io.open(path, 'r', encoding=encoding) as f:
         while True:
             line = f.readline()
-            if not line: return None
+            if not line:
+                return None
             line = line.strip()
-            if not line: continue
+            if not line:
+                continue
             return line
+
 
 def mkdir(path, recursive=False, **kwargs):
     if recursive:
         os.makedirs(path, exist_ok=True, **kwargs)
     else:
-        if os.path.isdir(path): return
+        if os.path.isdir(path):
+            return
         os.mkdir(path, **kwargs)
+
 
 # 这里只删除目录下的文件和目录
 # 不删除根目录
@@ -67,15 +80,17 @@ def rmtree(path):
     for p in p_list:
         m = os.path.join(path, p)
         if os.path.isfile(m):
-            os.unlink(m)	
+            os.unlink(m)
         else:
             shutil.rmtree(m)
+
 
 def copyfiles(src_list, dest_dir):
     if not os.path.isdir(dest_dir):
         raise OSError('Not a directory: %s' % dest_dir)
     for src in src_list:
         shutil.copy(src, dest_dir)
+
 
 # 如果目标目录已经存在了，就不再创建目录
 # 可以覆盖复制
@@ -159,20 +174,24 @@ def copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
         except OSError as why:
             errors.append((srcname, dstname, str(why)))
     try:
+        print(src)
+        print(dst)
         copystat(src, dst)
     except OSError as why:
         # Copying file access times may fail on Windows
         if getattr(why, 'winerror', None) is None:
             errors.append((src, dst, str(why)))
     if errors:
+        print(errors)
         raise Error(errors)
     return dst
 
+
 @contextlib.contextmanager
 def working_dir(path):
-	prev_cwd = os.getcwd()
-	os.chdir(path)
-	try:
-		yield
-	finally:
-		os.chdir(prev_cwd)
+    prev_cwd = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev_cwd)

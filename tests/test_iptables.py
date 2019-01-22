@@ -20,8 +20,8 @@ iptables_txt = '''
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 '''
 
+
 def check_port(fpath, pro, port):
-    
     m = {
             'pro': pro,
             'port': '%d' % port
@@ -43,6 +43,7 @@ def iptables_file():
         f.write(iptables_txt)
     return p
 
+
 def test_add_port(iptables_file):
     pro = 'tcp'
     port = 456
@@ -52,10 +53,11 @@ def test_add_port(iptables_file):
             )
 
     result = check_port(iptables_file, pro, port)
-    assert result == True
+    assert result
+
 
 def test_remove_port(iptables_file):
-    
+
     pro = 'udp'
     port = 897
     pybee.iptables.add_port(
@@ -63,12 +65,10 @@ def test_remove_port(iptables_file):
             pro, port
             )
     result = check_port(iptables_file, pro, port)
-    assert result == True
+    assert result
 
     pybee.iptables.remove_port(
             iptables_file, pro, port
             )
     result = check_port(iptables_file, pro, port)
-    assert result == False
-
-
+    assert result is False

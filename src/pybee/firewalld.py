@@ -18,6 +18,7 @@ service_file_tpl = '''<?xml version="1.0" encoding="utf-8"?>
 </service>
 '''
 
+
 def add_service_file(fpath, pro, port, short_desc, desc):
     '''
     添加或者替换原有的 service 文件
@@ -37,8 +38,9 @@ def add_service_file(fpath, pro, port, short_desc, desc):
     with io.open(fpath, 'w', encoding='UTF-8') as f:
         f.write(s)
 
+
 def enable_service(svr_name, zone='public'):
-    
+
     cmd_list = ['firewall-cmd', '--permanent', '--zone=%s' % zone]
     cmd_list.append('--add-service=%s' % svr_name)
 
@@ -52,18 +54,21 @@ def disable_service(svr_name, zone='public'):
 
     pybee.shell.exec(cmd_list)
 
+
 def add_port(pro, port, zone='public'):
     cmd_list = ['firewall-cmd', '--permanent', '--zone=%' % zone]
-    cmd_list.append('--add-port=%d/%s' % (port, pro) )
+    cmd_list.append('--add-port=%d/%s' % (port, pro))
 
     pybee.shell.exec(cmd_list)
+
 
 def remove_port(pro, port, zone='public'):
     cmd_list = ['firewall-cmd', '--permanent', '--zone=%' % zone]
-    cmd_list.append('--remove-port=%d/%s' % (port, pro) )
+    cmd_list.append('--remove-port=%d/%s' % (port, pro))
 
     pybee.shell.exec(cmd_list)
 
+    
 def reload():
     pybee.shell.exec(
             ['firewall-cmd', '--reload']

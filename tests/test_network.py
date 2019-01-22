@@ -6,6 +6,7 @@ import os
 
 import pybee
 
+
 @pytest.fixture
 def network_file():
     p = './tmp/network'
@@ -14,6 +15,7 @@ def network_file():
     with io.open(p, 'w') as f:
         f.write("")
     return p
+
 
 selinux_text = '''
 # This file controls the state of SELinux on the system.
@@ -24,10 +26,11 @@ selinux_text = '''
 SELINUX=enforcing
 # SELINUXTYPE= can take one of three two values:
 #     targeted - Targeted processes are protected,
-#     minimum - Modification of targeted policy. Only selected processes are protected. 
+#     minimum - Modification of targeted policy. Only selected processes are protected.
 #     mls - Multi Level Security protection.
 SELINUXTYPE=targeted
 '''
+
 
 @pytest.fixture
 def selinux_file():
@@ -39,6 +42,7 @@ def selinux_file():
         f.write(selinux_text)
     return p
 
+
 def test_add_hosts(network_file):
     ip = '192.168.0.5'
     domain = 'node1.pybee.com'
@@ -47,15 +51,16 @@ def test_add_hosts(network_file):
             network_file, ip,
             domain, domain2
             )
-    assert result == True
+    assert result
     result = pybee.network.check_or_add_hosts(
             network_file, ip,
             domain, domain2
             )
-    assert result == False
+    assert not result
+
 
 def test_remove_hosts(network_file):
-    
+
     ip = '192.168.0.10'
     domain = 'node5.pybee.com'
     domain2 = 'node6.pybee.com'
@@ -66,13 +71,13 @@ def test_remove_hosts(network_file):
             network_file, ip,
             domain, domain2
             )
-    assert result == True
+    assert result
 
     result = pybee.network.check_or_add_hosts(
             network_file, ip,
             domain3, domain4
             )
-    assert result == True
+    assert result
 
     pybee.network.remove_hosts(
             network_file, ip,
@@ -82,7 +87,7 @@ def test_remove_hosts(network_file):
             network_file, ip,
             domain, domain2
             )
-    assert result == True
+    assert result
 
     pybee.network.remove_hosts_by_ip(
             network_file, ip
@@ -90,13 +95,14 @@ def test_remove_hosts(network_file):
     s = pybee.path.read_text_file(network_file).strip()
     assert len(s) == 0
 
+
 def test_disable_selinux(selinux_file):
     result = pybee.network.disable_selinux(
             selinux_file
             )
-    assert result == True
+    assert result
 
     result = pybee.network.disable_selinux(
             selinux_file
             )
-    assert result == False
+    assert result is False

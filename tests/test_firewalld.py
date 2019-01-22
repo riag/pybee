@@ -6,6 +6,7 @@ import pytest
 
 import pybee
 
+
 @pytest.fixture
 def firewalld_service_file():
     p = './tmp/firewalld'
@@ -14,6 +15,7 @@ def firewalld_service_file():
     with io.open(p, 'w') as f:
         f.write("")
     return p
+
 
 def test_add_service_file(firewalld_service_file):
     pybee.firewalld.add_service_file(

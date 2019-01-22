@@ -6,6 +6,7 @@ import pybee
 
 test_dir = './tmp/sed/'
 
+
 def test_find_by_pattern():
     pybee.path.mkdir(test_dir, True)
 
@@ -21,15 +22,15 @@ ONBOOT=true
 
     pybee.path.save_text_file(p, s)
     match = pybee.sed.find_by_pattern(p, 'DEVICE=(.*)')
-    assert match != None
+    assert match is not None
     assert match.group(1) == 'eth1'
 
     match = pybee.sed.find_by_pattern(p, 'HWADDR=(.*)')
-    assert match != None
+    assert match is not None
     assert match.group(1) == '00:0C:29:B5:24:43'
 
     match = pybee.sed.find_by_pattern(p, 'UUID=(.*)')
-    assert match != None
+    assert match is not None
     assert match.group(1) == '9837a1c3-6001-459d-95b3-ea04fe5ee9ab'
 
 
@@ -47,22 +48,23 @@ ONBOOT=true
     '''
 
     pattern_list = (
-            'DEVICE=(.*)', 
+            'DEVICE=(.*)',
             'HWADDR=(.*)',
             'UUID=(.*)'
             )
     pybee.path.save_text_file(p, s)
-    match_list = pybee.sed.find_by_pattern_list(p, 
-            pattern_list
+    match_list = pybee.sed.find_by_pattern_list(
+                p, pattern_list
             )
-    assert match_list != None
+    assert match_list is not None
 
-    assert match_list[0].group(1) == 'eth1' 
-    assert match_list[1].group(1) == '00:0C:29:B5:24:43' 
-    assert match_list[2].group(1) == '9837a1c3-6001-459d-95b3-ea04fe5ee9ab' 
+    assert match_list[0].group(1) == 'eth1'
+    assert match_list[1].group(1) == '00:0C:29:B5:24:43'
+    assert match_list[2].group(1) == '9837a1c3-6001-459d-95b3-ea04fe5ee9ab'
+
 
 def test_replace_by_pattern(capsys):
-    
+
     pybee.path.mkdir(test_dir, True)
 
     p = os.path.join(test_dir, 'replace')
@@ -72,14 +74,16 @@ HOSTNAME=test
     '''
     pybee.path.save_text_file(p, s)
 
-    pybee.sed.replace_by_pattern(p, 
-            r'(HOSTNAME)\s*=\s*.+', '\g<1>=mytest'
+    pybee.sed.replace_by_pattern(
+                p,
+                r'(HOSTNAME)\s*=\s*.+', r'\g<1>=mytest'
             )
     match = pybee.sed.find_by_pattern(
-            p, 'HOSTNAME\s*=\s*(.*)'
+                p, r'HOSTNAME\s*=\s*(.*)'
             )
-    assert match != None
+    assert match is not None
     assert match.group(1) == 'mytest'
+
 
 def test_insert_by_pattern():
 
@@ -109,9 +113,9 @@ def test_insert_by_pattern():
         '-m', 'udp', '-p', 'udp', '--dport',  '694', '-j', 'ACCEPT'
             ]
     pybee.sed.insert_text_by_pattern(p,
-            '\s+'.join(reject_list), ' '.join(insert_list), False
+            r'\s+'.join(reject_list), ' '.join(insert_list), False
             )
     match = pybee.sed.find_by_pattern(p,
-            '\s+'.join(insert_list)
+            r'\s+'.join(insert_list)
             )
-    assert match != None
+    assert match is not None

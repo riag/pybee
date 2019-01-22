@@ -7,27 +7,30 @@ from string import Template
 
 import pybee
 
+
 reject_pattern = re.compile(
-            '\s+'.join([
-            '-A', 'INPUT', '-j' ,'REJECT', '--reject-with', 'icmp-host-prohibited'
-            ])
-        )
+    r'\s+'.join([
+        '-A', 'INPUT', '-j', 'REJECT', '--reject-with', 'icmp-host-prohibited'
+    ]))
 
 port_pattern_list = [
             '-A', 'INPUT', '-m', 'state', '--state', 'NEW',
             '-m', '$pro', '-p', '$pro', '--dport', '$port',
             '-j', 'ACCEPT'
             ]
-port_pattern_tpl =  '\s+'.join(port_pattern_list)        
+port_pattern_tpl = r'\s+'.join(port_pattern_list)
 port_text_tpl = ' '.join(port_pattern_list)
 
+
 def check_by_pattern(fpath, pattern):
-    match = pybee.sed.find_by_pattern(fpath,
-            pattern
-            )
-    if match: return True
+    match = pybee.sed.find_by_pattern(
+                fpath, pattern
+                )
+    if match:
+        return True
 
     return False
+
 
 def check_or_add_by_pattern(fpath, search_pattern, insert_text, back_suffix='back'):
     '''
@@ -37,15 +40,17 @@ def check_or_add_by_pattern(fpath, search_pattern, insert_text, back_suffix='bac
  然后返回 True
  返回值表示是否有插入数据
     '''
-    
-    match = pybee.sed.find_by_pattern(fpath, 
+
+    match = pybee.sed.find_by_pattern(
+            fpath,
             search_pattern
             )
-    if match: return False
+    if match:
+        return False
 
-    pybee.sed.insert_text_by_pattern(fpath, 
-            reject_pattern, insert_text, False,
-            back_suffix = back_suffix
+    pybee.sed.insert_text_by_pattern(
+                fpath, reject_pattern, insert_text, False,
+                back_suffix=back_suffix
             )
     return True
 
@@ -54,6 +59,7 @@ def remove_by_pattern(fpath, pattern):
     pybee.sed.delete_by_pattern(
             fpath, pattern
             )
+
 
 def add_port(fpath, pro, port):
     m = {
@@ -69,10 +75,10 @@ def add_port(fpath, pro, port):
     check_or_add_by_pattern(
             fpath, pattern, s
             )
-    
+
 
 def remove_port(fpath, pro, port):
-    
+
     m = {
             'pro': pro,
             'port': '%d' % port
@@ -82,4 +88,3 @@ def remove_port(fpath, pro, port):
 
     print(pattern)
     remove_by_pattern(fpath, pattern)
-

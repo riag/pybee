@@ -2,6 +2,7 @@
 
 import pybee
 
+
 def test_mkdir():
     p = './tmp/test'
     pybee.path.mkdir(p, True)
@@ -14,4 +15,4 @@ def test_copytree():
         pybee.path.mkdir(p, True)
 
     pybee.path.copytree('./tmp/test', './tmp/test_copy')
-    pybee.path.copytree('./tmp/test', './tmp/test_copy')
+    #pybee.path.copytree('./tmp/test', './tmp/test_copy')

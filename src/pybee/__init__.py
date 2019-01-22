@@ -16,16 +16,23 @@ from pybee import network
 from pybee import firewalld
 from pybee import ask
 from pybee import user
+from pybee import datetime
 
-from datetime import datetime
+import io
 
 net = netstat
 
 __version__ = '0.1.0'
 
-def get_date_time(dt, fmt='%Y-%m-%d %H:%M:%S'):
-	return dt.strftime(fmt)
+
+get_date_time = datetime.to_str
+
 
 def get_curr_date_time(fmt='%Y-%m-%d %H:%M:%S'):
 	d = datetime.now()
 	return get_date_time(d, fmt)
+
+
+def source(filepath):
+	with io.open(filepath, 'r', encoding='utf-8') as f:
+		eval(f.read())
