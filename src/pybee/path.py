@@ -4,7 +4,9 @@ import os
 import io
 import contextlib
 import shutil
-from shutil import copy2, copystat, Error
+import errno
+import stat
+from shutil import copy2, Error
 
 
 def get_work_path():
@@ -92,6 +94,96 @@ def copyfiles(src_list, dest_dir):
         shutil.copy(src, dest_dir)
 
 
+if hasattr(os, 'listxattr'):
+    def _copyxattr(src, dst, *, follow_symlinks=True):
+        """Copy extended filesystem attributes from `src` to `dst`.
+
+        Overwrite existing attributes.
+
+        If `follow_symlinks` is false, symlinks won't be followed.
+
+        """
+
+        try:
+            names = os.listxattr(src, follow_symlinks=follow_symlinks)
+        except OSError as e:
+            if e.errno not in (errno.ENOTSUP, errno.ENODATA):
+                raise
+            return
+        print(names)
+        for name in names:
+            if name == 'system.wsl_case_sensitive':
+                # 这个属性是在 WSL Linux 下访问 windows 下的目录会有这个扩展属性
+                # 在 WSL Linux 下的目录也没有这个属性
+                # https://blogs.msdn.microsoft.com/commandline/2018/06/14/improved-per-directory-case-sensitivity-support-in-wsl/
+                continue
+            try:
+                value = os.getxattr(src, name, follow_symlinks=follow_symlinks)
+                os.setxattr(dst, name, value, follow_symlinks=follow_symlinks)
+            except OSError as e:
+                if e.errno not in (errno.EPERM, errno.ENOTSUP, errno.ENODATA):
+                    raise
+else:
+    def _copyxattr(*args, **kwargs):
+        pass
+
+
+def copystat(src, dst, *, follow_symlinks=True):
+    """Copy all stat info (mode bits, atime, mtime, flags) from src to dst.
+
+    If the optional flag `follow_symlinks` is not set, symlinks aren't followed if and
+    only if both `src` and `dst` are symlinks.
+
+    """
+    def _nop(*args, ns=None, follow_symlinks=None):
+        pass
+
+    # follow symlinks (aka don't not follow symlinks)
+    follow = follow_symlinks or not (os.path.islink(src) and os.path.islink(dst))
+    if follow:
+        # use the real function if it exists
+        def lookup(name):
+            return getattr(os, name, _nop)
+    else:
+        # use the real function only if it exists
+        # *and* it supports follow_symlinks
+        def lookup(name):
+            fn = getattr(os, name, _nop)
+            if fn in os.supports_follow_symlinks:
+                return fn
+            return _nop
+
+    st = lookup("stat")(src, follow_symlinks=follow)
+    mode = stat.S_IMODE(st.st_mode)
+    lookup("utime")(dst, ns=(st.st_atime_ns, st.st_mtime_ns),
+        follow_symlinks=follow)
+
+    try:
+        lookup("chmod")(dst, mode, follow_symlinks=follow)
+    except NotImplementedError:
+        # if we got a NotImplementedError, it's because
+        #   * follow_symlinks=False,
+        #   * lchown() is unavailable, and
+        #   * either
+        #       * fchownat() is unavailable or
+        #       * fchownat() doesn't implement AT_SYMLINK_NOFOLLOW.
+        #         (it returned ENOSUP.)
+        # therefore we're out of options--we simply cannot chown the
+        # symlink.  give up, suppress the error.
+        # (which is what shutil always did in this circumstance.)
+        pass
+    if hasattr(st, 'st_flags'):
+        try:
+            lookup("chflags")(dst, st.st_flags, follow_symlinks=follow)
+        except OSError as why:
+            for err in 'EOPNOTSUPP', 'ENOTSUP':
+                if hasattr(errno, err) and why.errno == getattr(errno, err):
+                    break
+            else:
+                raise
+    _copyxattr(src, dst, follow_symlinks=follow)
+
+
 # 如果目标目录已经存在了，就不再创建目录
 # 可以覆盖复制
 def copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
@@ -174,15 +266,12 @@ def copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
         except OSError as why:
             errors.append((srcname, dstname, str(why)))
     try:
-        print(src)
-        print(dst)
         copystat(src, dst)
     except OSError as why:
         # Copying file access times may fail on Windows
         if getattr(why, 'winerror', None) is None:
             errors.append((src, dst, str(why)))
     if errors:
-        print(errors)
         raise Error(errors)
     return dst
 
