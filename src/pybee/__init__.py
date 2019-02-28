@@ -13,16 +13,21 @@ from pybee import netstat
 from pybee import springboot
 from pybee import iptables
 from pybee import network
-from pybee import firewalld
 from pybee import ask
-from pybee import user
 from pybee import datetime
 
+import sys
 import io
+
+if sys.platform.startswith('win32'):
+    pass
+else:
+    from pybee import firewalld
+    from pybee import user
 
 net = netstat
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 
 get_date_time = datetime.to_str
