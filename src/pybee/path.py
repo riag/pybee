@@ -110,7 +110,6 @@ if hasattr(os, 'listxattr'):
             if e.errno not in (errno.ENOTSUP, errno.ENODATA):
                 raise
             return
-        print(names)
         for name in names:
             if name == 'system.wsl_case_sensitive':
                 # 这个属性是在 WSL Linux 下访问 windows 下的目录会有这个扩展属性
