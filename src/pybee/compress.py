@@ -12,12 +12,22 @@ def zip(zipname, pathname, path_prefix=None, filterfunc=None, password=None):
             z.setpassword(password)
 
         for root, dirs, files in os.walk(pathname):
-            if not files:
-                continue
+
+            for name in sorted(dirs):
+                p = os.path.join(root, name)
+                if filterfunc and filterfunc(p):
+                    print("ignore dir %s" % p)
+                    continue
+
+                fixp = p[len(pathname)+1:]
+                if path_prefix:
+                    fixp = path_prefix + '/' + fixp
+                z.write(p, fixp)
+
             for f in files:
                 p = os.path.join(root, f)
                 if filterfunc and not filterfunc(p):
-                    print("ignore file ", p)
+                    print("ignore file %s" % p)
                     continue
 
                 fixp = p[len(pathname)+1:]
