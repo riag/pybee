@@ -275,13 +275,35 @@ class ZipAction(Action):
 
         self.env_name = env_name
 
+    def get_git_branch(self):
+        current_dir = self.get_env('CURRENT_DIR')
+        if not pybee.git.is_git_repo(current_dir):
+            return ''
+
+        git_bin = shutil.which('git')
+        if not git_bin:
+            return ''
+
+        branch = pybee.git.get_current_branch(current_dir)
+        branch = (branch == 'master') and 'release' or branch
+        return branch
+
+
+
     def do_action(self, *args):
         t = Template(self.dest_path)
         v = t.substitute(self.context.env, **self.env)
 
         now = datetime.now()
+        d = pybee.datetime.to_str(now, self.fmt)
+        v_map = {
+            'datetime': d,
+        }
+        branch = self.get_git_branch()
+        if branch:
+            v_map['branch'] = branch
         self.dest_path = v.format(
-            pybee.datetime.to_str(now, self.fmt)
+            **v_map
         )
 
         t = Template(self.src_dir)
