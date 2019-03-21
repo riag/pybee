@@ -26,10 +26,10 @@ def check_port(fpath, pro, port):
             'pro': pro,
             'port': '%d' % port
             }
-    t = Template(pybee.iptables.port_pattern_tpl)
+    t = Template(pybee.platform.linux.iptables.port_pattern_tpl)
     pattern = t.substitute(m)
 
-    return pybee.iptables.check_by_pattern(
+    return pybee.platform.linux.iptables.check_by_pattern(
             fpath, pattern
             )
 
@@ -47,7 +47,7 @@ def iptables_file():
 def test_add_port(iptables_file):
     pro = 'tcp'
     port = 456
-    pybee.iptables.add_port(
+    pybee.platform.linux.iptables.add_port(
             iptables_file,
             pro, port
             )
@@ -60,14 +60,14 @@ def test_remove_port(iptables_file):
 
     pro = 'udp'
     port = 897
-    pybee.iptables.add_port(
+    pybee.platform.linux.iptables.add_port(
             iptables_file,
             pro, port
             )
     result = check_port(iptables_file, pro, port)
     assert result
 
-    pybee.iptables.remove_port(
+    pybee.platform.linux.iptables.remove_port(
             iptables_file, pro, port
             )
     result = check_port(iptables_file, pro, port)

@@ -18,7 +18,7 @@ def firewalld_service_file():
 
 
 def test_add_service_file(firewalld_service_file):
-    pybee.firewalld.add_service_file(
+    pybee.platform.linux.firewalld.add_service_file(
             firewalld_service_file,
             'tcp', '80', 'http',
             'HTTP is the protocol used to serve Web pages.'
