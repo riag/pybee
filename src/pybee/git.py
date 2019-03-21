@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import pybee
 
 
@@ -15,3 +16,8 @@ def get_last_commit_id(short=True, cwd=None):
         cmd_list.append('--short')
     cmd_list.append('HEAD')
     return pybee.shell.call(cmd_list, cwd=cwd)
+
+
+def is_git_repo(fpath):
+    p = os.path.join(fpath, '.git')
+    return os.path.isdir(p)
