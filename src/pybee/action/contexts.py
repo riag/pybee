@@ -37,12 +37,19 @@ class BaseActionContext(object):
 
     def action(self, name, action, env={}, before=None, after=None):
 
-        ac = actions.Action(self, name, action)
+        ac = actions.Action(name, action)
 
         ac.init(self, env, before, after)
 
         self.action_list.append(ac)
 
+        return self
+
+    def func_action(self, func, *args, **kwargs):
+        ac = actions.FuncAction(func, *args, **kwargs)
+        ac.init(self, {})
+
+        self.action_list.append(ac)
         return self
 
     def add_action(self, action):

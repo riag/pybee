@@ -87,6 +87,22 @@ class ConditionAction(Action):
         return super().execute(self)
 
 
+class FuncAction(Action):
+    '''
+        执行普通的 python 的函数
+    '''
+    def __init__(self, func, *args, **kwargs):
+        super().__init__('func', self.do_action)
+
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def do_action(self, *args):
+        self.func(*self.args, **self.kwargs)
+        return True
+
+
 class CheckBinAction(Action):
     def __init__(self, bin_list):
         super().__init__('check_bin', self.do_action)
