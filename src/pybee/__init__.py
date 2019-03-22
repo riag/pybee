@@ -17,12 +17,11 @@ from pybee import datetime
 from pybee import platform
 from pybee import action
 
+from .__version__ import __version__
+
 import io
 
 net = netstat
-
-__version__ = '0.3.0'
-
 
 get_date_time = datetime.to_str
 
