@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "pybee"
+version = "0.3.0"
+description = ""
+authors = ["riag <riag@163.com>"]
+license = "Apache-2.0"
+
+packages = [
+	{ include="pybee", from="src" },
+]
+
+classifiers=[
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+PyFunctional = "^1.2"
+hfilesize = "^0.1.0"
+tqdm = "^4.31"
+jinja2 = "^2.10"
+click = "^7.0"
+psutil = "^5.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
