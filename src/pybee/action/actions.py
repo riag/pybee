@@ -214,7 +214,7 @@ class CopyAction(Action):
 
     def copy(self, src, dest, **kwargs):
         if os.path.isdir(src):
-            create_sub_dir = kwargs.get('create_sub_dir', True)
+            create_sub_dir = kwargs.pop('create_sub_dir', True)
             if create_sub_dir:
                 name = os.path.basename(src)
                 dest = os.path.join(dest, name)
