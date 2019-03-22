@@ -212,8 +212,11 @@ class CopyAction(Action):
 
     def copy(self, src, dest, **kwargs):
         if os.path.isdir(src):
-            name = os.path.basename(src)
-            dest = os.path.join(dest, name)
+            create_sub_dir = kwargs.get('create_sub_dir', True)
+            if create_sub_dir:
+                name = os.path.basename(src)
+                dest = os.path.join(dest, name)
+
             pybee.path.copytree(src, dest, **kwargs)
         else:
             pybee.path.copyfiles(
