@@ -60,18 +60,29 @@ def tar_gz(tarname, pathname, path_prefix=None, filterfunc=None):
     with tarfile.open(tarname, 'w:gz') as t:
 
         for root, dirs, files in os.walk(pathname):
-            if not files:
-                continue
-            for f in files:
-                p = os.path.join(root, f)
-                if filterfunc and not filterfunc(p):
-                    print("ignore file ", p)
+            for name in sorted(dirs):
+                p = os.path.join(root, name)
+                if filterfunc and filterfunc(p):
+                    print('ignore dir %s' % p)
                     continue
 
-                    fixp = p[len(pathname)+1:]
-                    if path_prefix:
-                        fixp = path_prefix + '/' + fixp
-                    t.add(p, fixp)
+                fixp = p[len(pathname)+1:]
+                if path_prefix:
+                    fixp = path_prefix + '/' + fixp
+                info = tarfile.TarInfo(fixp)
+                info.type = tarfile.DIRTYPE
+                t.addfile(info)
+
+            for f in files:
+                p = os.path.join(root, f)
+                if filterfunc and filterfunc(p):
+                    print("ignore file %s" % p)
+                    continue
+
+                fixp = p[len(pathname)+1:]
+                if path_prefix:
+                    fixp = path_prefix + '/' + fixp
+                t.add(p, fixp)
 
 
 def print_tar(tarname):
