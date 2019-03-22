@@ -45,7 +45,7 @@ class BaseActionContext(object):
 
         return self
 
-    def action(self, action):
+    def add_action(self, action):
         assert action is not None
         assert action.actioin is not None
 
