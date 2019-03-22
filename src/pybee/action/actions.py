@@ -9,19 +9,19 @@ from pathlib import Path
 
 
 class Action(object):
-    def __init__(self, name, action):
+    def __init__(self, name, action_func):
         self.name = name
-        self.action = action
+        self.action_func = action_func
         self.context = None
-        assert callable(action)
+        assert callable(action_func)
 
         self.env = {}
-        self.before = None
-        self.after = None
+        self.before_func = None
+        self.after_func = None
 
-    def init(self, context, env={}, before=None, after=None):
-        self.before = before
-        self.after = after
+    def init(self, context, env={}, before_func=None, after_func=None):
+        self.before_func = before_func
+        self.after_func = after_func
         self.context = context
         self.add_env(env)
 
@@ -33,7 +33,6 @@ class Action(object):
         self.env[name] = v
 
         return self
-
 
     def add_env(self, env):
         for name, value in env:
@@ -48,12 +47,6 @@ class Action(object):
         t = Template(s)
         return t.substitute(self.context.env, **self.env)
 
-    def action(self, name, action, env={}, before=None, after=None):
-        return self.cotext.action(
-            name, action, env,
-            before, after
-        )
-
     def get_env(self, name):
         v = self.env.get(name, None)
         if v is None:
@@ -63,18 +56,18 @@ class Action(object):
 
     def execute(self):
         rs = True
-        if self.before:
-            assert callable(self.before)
-            rs = self.before(self)
+        if self.before_func:
+            assert callable(self.before_func)
+            rs = self.before_func(self)
 
         if rs is not True:
             return rs
 
-        rs = self.action(self)
+        rs = self.action_func(self)
 
-        if self.after:
-            assert callable(self.after)
-            self.after(self, rs)
+        if self.after_func:
+            assert callable(self.after_func)
+            self.after_func(self, rs)
 
         return rs
 
