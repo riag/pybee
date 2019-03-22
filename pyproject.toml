@@ -3,7 +3,7 @@ name = "pybee"
 version = "0.3.1"
 description = ""
 authors = ["riag <riag@163.com>"]
-license = "Apache-2.0"
+license = "BSD-4-Clause"
 
 packages = [
 	{ include="pybee", from="src" },
