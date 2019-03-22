@@ -20,14 +20,20 @@ class BaseActionContext(object):
                 self.add_env(name, value)
 
     def add_env(self, name, value):
-        t = Template(value)
-        v = t.substitute(self.env)
+        v = self.render_str(value)
         self.env[name] = v
 
         return self
 
     def get_env(self, name):
         return self.env.get(name, None)
+
+    def render_str(self, s):
+        if '$' not in s:
+            return s
+
+        t = Template(s)
+        return t.substitute(self.env)
 
     def action(self, name, action, env={}, before=None, after=None):
 

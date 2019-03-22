@@ -41,6 +41,13 @@ class Action(object):
 
         return self
 
+    def render_str(self, s):
+        if '$' not in s:
+            return s
+
+        t = Template(s)
+        return t.substitute(self.context.env, **self.env)
+
     def action(self, name, action, env={}, before=None, after=None):
         return self.cotext.action(
             name, action, env,
@@ -126,8 +133,7 @@ class PrepareDirAction(Action):
     def do_action(self, *args):
         l = []
         for d in self.dir_list:
-            t = Template(d)
-            s = t.substitute(self.context.env, **self.env)
+            s = self.render_str(d)
             l.append(s)
 
         for d in l:
@@ -177,8 +183,7 @@ class CopyAction(Action):
 
     def do_action(self, *args):
         if self.work_dir:
-            t = Template(self.work_dir)
-            self.work_dir = t.substitute(self.context.env, **self.env)
+            self.work_dir = self.render_str(self.work_dir)
 
         new_copy_list = []
         for item in self.copy_list:
@@ -188,11 +193,8 @@ class CopyAction(Action):
             if len(item) > 2:
                 m = item[2]
 
-            t = Template(src)
-            src = t.substitute(self.context.env, **self.env)
-
-            t = Template(dest)
-            dest = t.substitute(self.context.env, **self.env)
+            src = self.render_str(src)
+            dest = self.render_str(dest)
             new_copy_list.append((src, dest, m))
 
 
@@ -234,18 +236,15 @@ class ExecCmdAction(Action):
 
     def do_action(self, *args):
         if self.work_dir:
-            t = Template(self.work_dir)
-            self.work_dir = t.substitute(self.context.env, **self.env)
+            self.work_dir = self.render_str(self.work_dir)
 
         shell = False
         if isinstance(self.cmd, str):
             shell = True
-            t = Template(self.cmd)
-            self.cmd = t.substitute(self.context.env, **self.env)
+            self.cmd = self.render_str(self.cmd)
         else:
             c = self.cmd[0]
-            t = Template(c)
-            c = t.substitute(self.context.env, **self.env)
+            c = self.render_str(c)
             self.cmd[0] = c
 
         env = self.env if self.env else None
@@ -294,8 +293,7 @@ class ZipAction(Action):
 
 
     def do_action(self, *args):
-        t = Template(self.dest_path)
-        v = t.substitute(self.context.env, **self.env)
+        v = self.render_str(self.dest_path)
 
         now = datetime.now()
         d = pybee.datetime.to_str(now, self.fmt)
@@ -309,8 +307,7 @@ class ZipAction(Action):
             **v_map
         )
 
-        t = Template(self.src_dir)
-        self.src_dir = t.substitute(self.context.env, **self.env)
+        self.src_dir = self.render_str(self.src_dir)
 
         name = os.path.basename(self.dest_path)
         work_dir = os.path.dirname(self.src_dir)
