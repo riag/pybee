@@ -128,9 +128,9 @@ class ActionContext(BaseActionContext):
         self.action_list.append(ac)
         return self
 
-    def zip(self, zip_path, src_dir, zip_path_prefix=None, fmt='%Y-%m-%d', env_name=None):
+    def zip(self, src_dir, zip_path, zip_path_prefix=None, fmt='%Y-%m-%d', env_name=None):
         ac = actions.ZipAction(
-            zip_path, src_dir,
+            src_dir, zip_path,
             zip_path_prefix, fmt, env_name
         )
 
@@ -139,9 +139,31 @@ class ActionContext(BaseActionContext):
         self.action_list.append(ac)
         return self
 
-    def unzip(self, zip_path, out_put_dir, create_sub_dir=True):
+    def unzip(self, zip_path, out_put_dir, create_sub_dir=True, env_name=None):
         ac = actions.UnZipAction(
-            zip_path, out_put_dir, create_sub_dir
+            zip_path, out_put_dir,
+            create_sub_dir, env_name
+        )
+
+        ac.init(self)
+
+        self.action_list.append(ac)
+        return self
+
+    def targz(self, src_dir, compress_path, fmt='%Y-%m-%d', env_name=None):
+        ac = actions.TargzAction(
+            src_dir, compress_path,
+            fmt, env_name
+        )
+        ac.init(self)
+
+        self.action_list.append(ac)
+        return self
+
+    def untargz(self, compress_path, out_put_dir, create_sub_dir=False, env_name=None):
+        ac = actions.UnTargzAction(
+            compress_path, out_put_dir,
+            create_sub_dir, env_name
         )
 
         ac.init(self)

@@ -266,31 +266,15 @@ class ExecCmdAction(Action):
         return True
 
 
-class ZipAction(Action):
-    def __init__(self, dest_path, src_dir, zip_path_prefix=None, fmt='%Y-%m-%d', env_name=None):
-        super().__init__('zip', self.do_action)
+class CompressAction(Action):
+    def __init__(self, name, src_dir, dest_path, fmt='%Y-%m-%d', env_name=None):
+        super().__init__(name, self.do_action)
 
         self.dest_path = dest_path
         self.src_dir = src_dir
-        self.zip_path_prefix = zip_path_prefix
         self.fmt = fmt
 
         self.env_name = env_name
-
-    def get_git_branch(self):
-        current_dir = self.get_env('CURRENT_DIR')
-        if not pybee.git.is_git_repo(current_dir):
-            return ''
-
-        git_bin = shutil.which('git')
-        if not git_bin:
-            return ''
-
-        branch = pybee.git.get_current_branch(current_dir)
-        branch = (branch == 'master') and 'release' or branch
-        return branch
-
-
 
     def do_action(self, *args):
         v = self.render_str(self.dest_path)
@@ -309,38 +293,114 @@ class ZipAction(Action):
 
         self.src_dir = self.render_str(self.src_dir)
 
-        name = os.path.basename(self.dest_path)
+        name = os.path.basename(self.src_dir)
         work_dir = os.path.dirname(self.src_dir)
-        with pybee.path.working_dir(work_dir):
-            pybee.compress.zip(
-                name, self.src_dir, self.zip_path_prefix
-            )
+
+        self.compress(work_dir, name)
 
         if self.env_name:
             self.context.env[self.env_name] = self.dest_path
 
         return True
 
+    def compress(self, work_dir, src_dir_name):
+        pass
 
-class UnZipAction(Action):
-    def __init__(self, zip_path, out_put_dir, create_sub_dir=True):
-        super().__init__('unzip', self.do_action)
 
-        self.zip_path = zip_path
+    def get_git_branch(self):
+        current_dir = self.get_env('CURRENT_DIR')
+        if not pybee.git.is_git_repo(current_dir):
+            return ''
+
+        git_bin = shutil.which('git')
+        if not git_bin:
+            return ''
+
+        branch = pybee.git.get_current_branch(current_dir)
+        branch = (branch == 'master') and 'release' or branch
+        return branch
+
+
+class DeCompressAction(Action):
+    def __init__(self, name, src_path, out_put_dir, create_sub_dir=True, env_name=None):
+        super().__init__(name, self.do_action)
+
+        self.src_path = src_path
         self.out_put_dir = out_put_dir
+        self.env_name = env_name
         self.create_sub_dir = create_sub_dir
 
-    def do_action(self, *args):
-        t = Template(self.zip_path)
-        self.zip_path = t.substitute(self.context.env, **self.env)
+    def get_file_name(self, p):
+        name = os.path.basename(p)
+        suffix = ''.join(Path(p).suffixes)
+        if suffix:
+            return name.rstrip(suffix)
+        return name
 
-        t = Template(self.out_put_dir)
-        self.out_put_dir = t.substitute(self.context.env, **self.env)
+    def do_action(self, *args):
+        self.src_path = self.render_str(self.src_path)
+        self.out_put_dir = self.render_str(self.out_put_dir)
 
         dest_path = self.out_put_dir
         if self.create_sub_dir:
-            name = Path(self.zip_path).stem
+            name = self.get_file_name(self.src_path)
             dest_path = os.path.join(dest_path, name)
+            pybee.path.mkdir(dest_path, True)
 
-        pybee.compress.unzip(self.zip_path, dest_path)
+        self.decompress(self.src_path, dest_path)
+
+        if self.env_name:
+            self.context.env[self.env_name] = dest_path
+
         return True
+
+    def decompress(self, src_path, dest_path):
+        pass
+
+
+class ZipAction(CompressAction):
+    def __init__(self, src_dir, dest_path, zip_path_prefix=None, fmt='%Y-%m-%d', env_name=None):
+        super().__init__('zip', src_dir, dest_path, fmt, env_name)
+
+        self.zip_path_prefix = zip_path_prefix
+
+
+    def compress(self, work_dir, src_dir_name):
+
+        with pybee.path.working_dir(work_dir):
+            pybee.compress.zip(
+                self.dest_path, src_dir_name, self.zip_path_prefix
+            )
+
+        return True
+
+
+class UnZipAction(DeCompressAction):
+    def __init__(self, zip_path, out_put_dir, create_sub_dir=True, env_name=None):
+        super().__init__('unzip', zip_path, out_put_dir, create_sub_dir, env_name)
+
+    def decompress(self, src_path, dest_path):
+        pybee.compress.unzip(src_path, dest_path)
+
+
+class TargzAction(CompressAction):
+    def __init__(self, src_dir, dest_path, fmt='%Y-%m-%d', env_name=None):
+        super().__init__('targz', src_dir, dest_path, fmt, env_name)
+
+    def compress(self, work_dir, src_dir_name):
+        with pybee.path.working_dir(work_dir):
+            pybee.shell.exec([
+                'tar', 'cfz', self.dest_path, src_dir_name,
+            ])
+
+        return True
+
+
+class UnTargzAction(DeCompressAction):
+    def __init__(self, zip_path, out_put_dir, create_sub_dir=True, env_name=None):
+        super().__init__('untargz', zip_path, out_put_dir, create_sub_dir, env_name)
+
+    def decompress(self, src_path, dest_path):
+        pybee.shell.exec([
+            'tar', 'xfz', src_path, '-C', dest_path
+        ])
