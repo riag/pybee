@@ -1,11 +1,12 @@
 
 import os
-import sys
 import shutil
 from datetime import datetime
 from string import Template
-import pybee
 from pathlib import Path
+import traceback
+
+import pybee
 
 
 class Action(object):
@@ -32,7 +33,7 @@ class Action(object):
         if isinstance(v, str):
             t = Template(value)
             v = t.substitute(self.context.env, **self.env)
-            
+
         self.env[name] = v
 
         return self
@@ -78,16 +79,40 @@ class Action(object):
 class ConditionAction(Action):
     def __init__(self, name, condition, action):
         super().__init__(name, action)
-        assert callable(condition)
 
         self.condition = condition
 
     def execute(self):
-        if not self.condition(self):
+        if self.condition and not self.condition(self):
             print('ignore action %s' % self.name)
             return True
 
         return super().execute(self)
+
+
+class CompositeAction(ConditionAction):
+    def __init__(self, condition):
+        super().__init__('composite', condition, self.do_action)
+        self.action_list = []
+
+    def add_action(self, action):
+        assert action is not None
+        self.action_list.append(action)
+
+    def do_action(self, *args):
+        all_succ = True
+        for action in self.action_list:
+            succ = False
+            try:
+                succ = action.execute()
+            except Exception:
+                traceback.print_exc()
+
+            if succ is not True:
+                all_succ = False
+                break
+
+        return all_succ
 
 
 class FuncAction(Action):

@@ -15,3 +15,18 @@ def test_action(capsys):
     with capsys.disabled():
         print(ac.env)
         ac.execute()
+
+
+def test_composite_action(capsys):
+    ac = pybee.action.ActionContext()
+    ac.start_composite()
+    ac.check_bin(bin_list=[
+        ('git', 'please install git')
+    ])
+    ac.prepare_dir(dir_list=[
+        '$CURRENT_DIR/tmp'
+    ])
+    ac.stop_composite()
+
+    assert len(ac.action_list) == 1
+    assert len(ac.last_action().action_list) == 2

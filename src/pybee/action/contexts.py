@@ -13,6 +13,7 @@ class BaseActionContext(object):
             'CURRENT_DIR': pybee.path.get_work_path()
         }
         self.action_list = []
+        self.current_action = None
 
         if env:
             assert isinstance(env, (tuple, list))
@@ -38,29 +39,46 @@ class BaseActionContext(object):
         t = Template(s)
         return t.substitute(self.env)
 
+    def add_action(self, action):
+        assert action is not None
+
+        action.context = self
+        if self.current_action:
+            self.current_action.add_action(action)
+        else:
+            self.action_list.append(action)
+        return self
+
     def action(self, name, action, env={}, before=None, after=None):
 
         ac = actions.Action(name, action)
 
         ac.init(self, env, before, after)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
 
+        return self
+
+    def start_composite(self, condition=None, env={}):
+        ac = actions.CompositeAction(condition)
+        ac.init(self, env)
+
+        self.current_action = ac
+        return self
+
+    def stop_composite(self):
+        if self.current_action is None:
+            return self
+
+        self.action_list.append(self.current_action)
+        self.current_action = None
         return self
 
     def func_action(self, func, *args, **kwargs):
         ac = actions.FuncAction(func, *args, **kwargs)
         ac.init(self, {})
 
-        self.action_list.append(ac)
-        return self
-
-    def add_action(self, action):
-        assert action is not None
-        assert action.actioin is not None
-
-        action.context = self.context
-        self.action_list.append(action)
+        self.add_action(ac)
         return self
 
     def last_action(self):
@@ -76,6 +94,10 @@ class BaseActionContext(object):
         return self.action_list[0]
 
     def execute(self, succ_func=None):
+        if self.current_action is not None:
+            self.action_list.append(self.current_action)
+            self.current_action = None
+
         all_succ = True
         for action in self.action_list:
             print('start execte action %s' % action.name)
@@ -104,28 +126,28 @@ class ActionContext(BaseActionContext):
         ac = actions.CheckBinAction(bin_list)
         ac.init(self, env, before, after)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def prepare_dir(self, dir_list, env={}, before=None, after=None):
         ac = actions.PrepareDirAction(dir_list)
         ac.init(self, env, before, after)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def ask(self, ask_list, env={}):
         ac = actions.AskAction(ask_list)
         ac.init(self, env)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def copy(self, copy_list, work_dir=None, env={}):
         ac = actions.CopyAction(copy_list, work_dir)
         ac.init(self, env)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def exec_cmd(self, cmd, work_dir=None, env_name=None, handle_func=None, encoding='utf-8', env={}, **kwargs):
@@ -135,7 +157,7 @@ class ActionContext(BaseActionContext):
         )
         ac.init(self, env)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def zip(self, src_dir, zip_path, zip_path_prefix=None, fmt='%Y-%m-%d', env_name=None):
@@ -146,7 +168,7 @@ class ActionContext(BaseActionContext):
 
         ac.init(self)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def unzip(self, zip_path, out_put_dir, create_sub_dir=True, env_name=None):
@@ -157,7 +179,7 @@ class ActionContext(BaseActionContext):
 
         ac.init(self)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def targz(self, src_dir, compress_path, fmt='%Y-%m-%d', env_name=None):
@@ -167,7 +189,7 @@ class ActionContext(BaseActionContext):
         )
         ac.init(self)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
 
     def untargz(self, compress_path, out_put_dir, create_sub_dir=False, env_name=None):
@@ -178,5 +200,5 @@ class ActionContext(BaseActionContext):
 
         ac.init(self)
 
-        self.action_list.append(ac)
+        self.add_action(ac)
         return self
