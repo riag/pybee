@@ -413,3 +413,24 @@ class UnTargzAction(DeCompressAction):
         pybee.shell.exec([
             'tar', 'xfz', src_path, '-C', dest_path
         ])
+
+
+class DownloadAction(Action):
+    def __init__(self, url, out_put_path, env_name=None, **kwargs):
+        super().__init__('download', self.do_action)
+
+        self.url = url
+        self.out_put_path = out_put_path
+        self.env_name = env_name
+        self.kwargs = kwargs
+
+    def do_action(self, *args):
+        out = self.render_str(self.out_put_path)
+        dest_file = pybee.download.download(
+            self.url, out,
+            **self.kwargs
+        )
+        if self.env_name:
+            self.context.env[self.env_name] = dest_file
+
+        return True
