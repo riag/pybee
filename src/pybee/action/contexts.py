@@ -20,7 +20,10 @@ class BaseActionContext(object):
                 self.add_env(name, value)
 
     def add_env(self, name, value):
-        v = self.render_str(value)
+        v = value
+        if isinstance(v, str):
+            v = self.render_str(value)
+
         self.env[name] = v
 
         return self

@@ -28,8 +28,11 @@ class Action(object):
         return self
 
     def add_env(self, name, value):
-        t = Template(value)
-        v = t.substitute(self.context.env, **self.env)
+        v = value
+        if isinstance(v, str):
+            t = Template(value)
+            v = t.substitute(self.context.env, **self.env)
+            
         self.env[name] = v
 
         return self
