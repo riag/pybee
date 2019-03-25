@@ -113,4 +113,23 @@ def get_output(
     return m.decode(encoding).rstrip('\n')
 
 
-#TODO: pipe call
+class PipeCommand(object):
+    def __init__(self, cmd_list, **kw):
+        self.cmd_list = cmd_list
+        self.kw = kw
+
+
+def pipe_call_shell_command(pipe_cmd_list):
+    pre_stdout = subprocess.PIPE
+    last_p = None
+    for cmd in pipe_cmd_list:
+        kw = cmd.kw
+        kw['stdin'] = pre_stdout
+        kw['stdout'] = subprocess.PIPE
+        p = subprocess.Popen(
+            cmd.cmd_list, **kw
+        )
+        pre_stdout = p.stdout
+        last_p = p
+
+    last_p.wait()
