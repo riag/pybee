@@ -125,7 +125,7 @@ class ActionContext(BaseActionContext):
         self.action_list.append(ac)
         return self
 
-    def exec_cmd(self, cmd, work_dir=None, env_name=None, handle_func=None, env={}, **kwargs):
+    def exec_cmd(self, cmd, work_dir=None, env_name=None, handle_func=None, encoding='utf-8', env={}, **kwargs):
         ac = actions.ExecCmdAction(
                 cmd, work_dir,
                 env_name, handle_func, **kwargs

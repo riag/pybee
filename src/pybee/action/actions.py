@@ -236,7 +236,7 @@ class CopyAction(Action):
 
 
 class ExecCmdAction(Action):
-    def __init__(self, cmd, work_dir=None, env_name=None, handle_func=None, **kwargs):
+    def __init__(self, cmd, work_dir=None, env_name=None, handle_func=None, encoding='utf-8', **kwargs):
 
         super().__init__('exec_cmd', self.do_action)
         self.cmd = cmd
@@ -244,6 +244,8 @@ class ExecCmdAction(Action):
         self.env_name = env_name
         self.handle_func = handle_func
         self.kwargs = kwargs
+
+        self.encoding = encoding
 
     def do_action(self, *args):
         if self.work_dir:
@@ -264,7 +266,7 @@ class ExecCmdAction(Action):
             value = pybee.shell.get_output(
                 self.cmd, shell=shell,
                 cwd=self.work_dir,
-                env=env, **self.kwargs
+                env=env, encoding=self.encoding, **self.kwargs
             )
             if self.handle_func:
                 value = self.handle_func(self, value)
