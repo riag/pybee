@@ -202,3 +202,11 @@ class ActionContext(BaseActionContext):
 
         self.add_action(ac)
         return self
+
+    def download(self, url, out_put_path, env={}, env_name=None, **kwargs):
+        ac = actions.DownloadAction(
+            url, out_put_path, env_name, **kwargs
+        )
+        ac.init(self, env)
+        self.add_action(ac)
+        return self
