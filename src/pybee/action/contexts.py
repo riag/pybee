@@ -93,7 +93,12 @@ class BaseActionContext(object):
 
         return self.action_list[0]
 
-    def execute(self, succ_func=None):
+    def execute(self, env=None, succ_func=None):
+        if env:
+            assert isinstance(env, (tuple, list))
+            for name, value in env:
+                self.add_env(name, value)
+
         if self.current_action is not None:
             self.action_list.append(self.current_action)
             self.current_action = None
