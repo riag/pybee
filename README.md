@@ -9,24 +9,16 @@
 ### 安装依赖工具
 
 * python 3.4+
-* pipenv
+* poetry
 
 执行下面命令安装依赖包
 
 ```
-pipenv install --dev
+poetry install
 ```
-
-
 
 ### 编译
 
 ```
-python3 setup.py build
-```
-
-打包 wheel 格式
-
-```
-python3 setup.py bdist_wheel
+poetry build
 ```
