@@ -38,5 +38,70 @@ poetry build
   在 pybee 模块的基础上把常见的操作封装成 action，下面就是一个列子
 
   ```
-  # TODO
+import pybee
+
+ac = pybee.action.ActionContext([
+    ('SCRIPT_DIR', pybee.path.get_script_path(__file__)),
+    ('DIST_DIR', '$CURRENT_DIR/dist'),
+    ('OUT_PUT_DIR', '$DIST_DIR/test-demo-portable'),
+])
+
+ac.prepare_dir(
+    [
+        '$DIST_DIR', '$OUT_PUT_DIR',
+        '$OUT_PUT_DIR/portable',
+    ]
+)
+
+ac.check_bin([
+    ('gradle','please install gradle', 'GRADLE_BIN'),
+])
+
+ac.exec_cmd(
+    [
+        '$GRADLE_BIN', 'packDist', '-x', 'test'
+    ]
+)
+
+ac.unzip(
+    '$DIST_DIR/test-demo/test-demo.jar',
+    '$OUT_PUT_DIR'
+)
+
+
+def ignore_config_files(src, names):
+    return ['project.groovy', ]
+
+ac.copy(
+    [
+        ('$CURRENT_DIR/config', '$OUT_PUT_DIR', {
+            'ignore': ignore_config_files
+        }),
+        ('$CURRENT_DIR/public', '$OUT_PUT_DIR'),
+    ]
+)
+
+ac.copy(
+    [
+        ('run.ps1', '$OUT_PUT_DIR'),
+        ('run.sh', '$OUT_PUT_DIR'),
+        ('portable.groovy', '$OUT_PUT_DIR/config'),
+    ],
+    work_dir='$SCRIPT_DIR/portable'
+)
+
+ac.zip(
+    '$OUT_PUT_DIR',
+    '$DIST_DIR/test-demo-portable-{datetime}.zip',
+    env_name='DIST_FILE'
+)
+
+
+def print_success(context):
+    print('')
+    zip_file = context.get_env('DIST_FILE')
+    print('pack successfully, dist file is %s' % zip_file)
+
+
+ac.execute(succ_func=print_success)
   ```
