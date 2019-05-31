@@ -5,7 +5,7 @@ description = "Provides some useful functions to write maintainer scripts or dep
 authors = ["riag <riag@163.com>"]
 license = "BSD-4-Clause"
 
-readme = 'README.MD'
+readme = 'README.md'
 
 packages = [
 	{ include="pybee", from="src" },
