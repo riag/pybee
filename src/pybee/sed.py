@@ -110,6 +110,8 @@ def delete_by_line_number(
     file_seq = seq(lines)
     text = file_seq.enumerate().filter(
         lambda x: x[0] not in line_numbers
+        ).map(
+            lambda x: x[1]
         ).make_string('')
 
     pybee.path.save_text_file(fpath, text, encoding)
