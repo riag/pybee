@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "pybee"
-version = "0.3.1"
-description = ""
+version = "0.3.2"
+description = "Provides some useful functions to write maintainer scripts or deployment scripts"
 authors = ["riag <riag@163.com>"]
 license = "BSD-4-Clause"
+
+readme = 'README.md'
 
 packages = [
 	{ include="pybee", from="src" },

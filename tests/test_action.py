@@ -1,6 +1,14 @@
 
 import pybee
+import os
+import pytest
 
+
+@pytest.fixture
+def action_dir():
+    p = './tmp/action'
+    pybee.path.mkdir(p)
+    return p
 
 def test_action(capsys):
     ac = pybee.action.ActionContext(env=[
@@ -17,14 +25,14 @@ def test_action(capsys):
         ac.execute()
 
 
-def test_composite_action(capsys):
+def test_composite_action(action_dir, capsys):
     ac = pybee.action.ActionContext()
     ac.start_composite()
     ac.check_bin(bin_list=[
         ('git', 'please install git')
     ])
     ac.prepare_dir(dir_list=[
-        '$CURRENT_DIR/tmp'
+        action_dir
     ])
     ac.stop_composite()
 
@@ -103,3 +111,121 @@ def test_pipe_run(capsys):
     result_list = p.run()
     with capsys.disabled():
         print(result_list)
+
+def test_insert_text_action(action_dir, capsys):
+    ac = pybee.action.ActionContext(env=[
+        ('OUTPUT_DIR', action_dir),
+    ])
+    out_file = '$OUTPUT_DIR/test_insert_text_action'
+    f = ac.render_str(out_file)
+
+    pybee.path.save_text_file(f, 
+    '''test one 
+test two
+test third
+test four
+test five
+    '''
+    )
+
+    line_number = 3
+    a = pybee.action.actions.InsertTextAction(
+        out_file, 'test insert text', line_number)
+    ac.add_action(a)
+
+    with capsys.disabled():
+        print(ac.env)
+        ac.execute()
+
+        lines = pybee.path.read_lines_from_file(f)
+        text = lines[line_number+1]
+        print(text)
+        assert text == 'test insert text\n'
+
+
+def test_delete_text_action(action_dir, capsys):
+    ac = pybee.action.ActionContext(env=[
+        ('OUTPUT_DIR', action_dir),
+    ])
+    out_file = '$OUTPUT_DIR/test_delete_text_action'
+    f = ac.render_str(out_file)
+
+    pybee.path.save_text_file(f, 
+    '''test one 
+test two
+test third
+test four
+test five
+    '''
+    )
+
+    line_number = 3
+    a = pybee.action.actions.InsertTextAction(
+        out_file, 'test insert text', line_number)
+    ac.add_action(a)
+
+    with capsys.disabled():
+        print(ac.env)
+        ac.execute()
+
+        lines = pybee.path.read_lines_from_file(f)
+        text = lines[line_number+1]
+        print(text)
+        assert text == 'test insert text\n'
+
+
+    ac.action_list.clear()
+    a = pybee.action.actions.DeleteTextAction(out_file, line_number+1)
+    ac.add_action(a)
+
+    with capsys.disabled():
+        print(ac.env)
+        ac.execute()
+
+        lines = pybee.path.read_lines_from_file(f)
+        assert len(lines) == 6
+
+    ac.action_list.clear()
+    a = pybee.action.actions.DeleteTextAction(out_file, pattern='^test(\s+)four')
+    ac.add_action(a)
+
+    with capsys.disabled():
+        print(ac.env)
+        ac.execute()
+
+        lines = pybee.path.read_lines_from_file(f)
+        assert len(lines) == 5
+
+
+def test_replace_action(action_dir, capsys):
+
+    ac = pybee.action.ActionContext(env=[
+        ('OUTPUT_DIR', action_dir),
+    ])
+    out_file = '$OUTPUT_DIR/test_replace_action'
+    f = ac.render_str(out_file)
+
+    pybee.path.save_text_file(f, 
+    '''test one 
+test two
+test third
+test four
+test five
+    '''
+    )
+
+    a = pybee.action.actions.ReplaceTextAction(
+        out_file, 
+        (
+            ('^test(\s+)(four)', 'test\g<1>test'),
+        ),
+    )
+    ac.add_action(a)
+
+    with capsys.disabled():
+        print(ac.env)
+        ac.execute()
+
+        lines = pybee.path.read_lines_from_file(f)
+
+        assert lines[3] == 'test test\n'

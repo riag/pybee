@@ -5,6 +5,7 @@ from datetime import datetime
 from string import Template
 from pathlib import Path
 import traceback
+import string
 
 import pybee
 
@@ -469,7 +470,6 @@ class DownloadAction(Action):
 
         return True
 
-
 class GrepAction(Action):
     def __init__(self, fpath, pattern, env_name_list):
         super().__init__('grep', self.do_action)
@@ -499,4 +499,92 @@ class GrepAction(Action):
         for i in range(size):
             self.context.env[self.env_name_list[i]] = g[i]
 
+        return True
+
+class InsertTextAction(Action):
+    def __init__(self, fpath, text, line_number=None, pattern=None, after=True):
+        super().__init__('insert_text', self.do_action)
+        self.fpath = fpath
+        self.line_number = line_number
+        self.pattern = pattern
+        self.after = after
+        self.text = text
+
+        if self.line_number is None or self.pattern is None:
+            # todo
+            pass
+
+
+    def do_action(self, *args):
+        p = self.render_str(self.fpath)
+        print('line number: %d' % self.line_number)
+        if self.line_number:
+            pybee.sed.insert_text_by_line_number(
+                p,  
+                (
+                    (self.line_number, self.text, self.after),
+                ),
+            )
+            return True
+        
+        pybee.sed.insert_text_by_pattern(
+            p, self.pattern, self.text,
+            self.after
+        )
+        return True
+
+class DeleteTextAction(Action):
+    def __init__(self, fpath, line_number=None, pattern=None):
+        super().__init__('delete_text', self.do_action)
+        self.fpath = fpath
+        self.line_number = line_number
+        self.pattern = pattern
+
+    def do_action(self, *args):
+        p = self.render_str(self.fpath)
+        if self.line_number:
+            number = self.line_number
+            if type(number) is int:
+                number = [number, ]
+            pybee.sed.delete_by_line_number(
+                p, number
+            )
+            return True
+
+        pybee.sed.delete_by_pattern(
+            p, self.pattern
+            )
+        return True
+
+class ReplaceTextAction(Action):
+    def __init__(self, fpath, replace_pattern_list):
+        super().__init__('replace_text', self.do_action)
+        self.fpath = fpath
+        self.replace_pattern_list = replace_pattern_list
+
+    def do_action(self, *args):
+        p = self.render_str(self.fpath)
+        pybee.sed.replace_by_pattern_list(
+            p, self.replace_pattern_list
+        )
+        return True
+
+
+class Jinja2TemplateAction(Action):
+    def __init__(self, tpl_path, output_path, *mapping, **kwds):
+        super().__init__('jinja2_template', self.do_action)
+
+        self.tpl_path = tpl_path
+        self.output_path = output_path
+        self.mapping = mapping
+        self.kwds = kwds
+
+    def do_action(self, *args):
+        tp = self.render_str(self.tpl_path)
+        op = self.render_str(self.output_path)
+        pybee.sed.render_by_jinja_template(
+            tp, op,
+            mapping=self.mapping, 
+            kwds=self.kwds
+        )
         return True
