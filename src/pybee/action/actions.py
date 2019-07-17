@@ -468,3 +468,35 @@ class DownloadAction(Action):
             self.context.env[self.env_name] = dest_file
 
         return True
+
+
+class GrepAction(Action):
+    def __init__(self, fpath, pattern, env_name_list):
+        super().__init__('grep', self.do_action)
+
+        self.fpath = fpath
+        self.pattern = pattern
+        self.env_name_list = env_name_list
+
+    def do_action(self, *args):
+        if not self.env_name_list:
+            return False
+
+        p = self.render_str(self.fpath)
+        m = pybee.sed.find_by_pattern(p, self.pattern)
+        if not m:
+            return False
+
+        g = m.groups()
+        g_size = len(g)
+        size = len(self.env_name_list)
+        if g_size < size:
+            size = g_size
+
+        if size == 0:
+            return True
+
+        for i in range(size):
+            self.context.env[self.env_name_list[i]] = g[i]
+
+        return True
